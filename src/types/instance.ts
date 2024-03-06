@@ -29,12 +29,10 @@ export interface Elements {
   monthNav: HTMLDivElement;
 
   monthsDropdownContainer: HTMLSelectElement;
-
-  yearElements: HTMLInputElement[];
   monthElements: HTMLSpanElement[];
 
   // month nav getters
-  currentYearElement: HTMLInputElement;
+  currentYearElement: HTMLSpanElement;
   currentMonthElement: HTMLSpanElement;
 
   // month nav arrows
@@ -42,6 +40,19 @@ export interface Elements {
   _hideNextMonthArrow: boolean;
   prevMonthNav: HTMLElement;
   nextMonthNav: HTMLElement;
+
+  // Year nav
+  yearNav: HTMLDivElement;
+
+  yearsDropdownContainer: HTMLSelectElement;
+
+  yearElements: HTMLSpanElement[];
+
+  // Year nav arrows
+  _hidePrevYearArrow: boolean;
+  _hideNextYearArrow: boolean;
+  prevYearNav: HTMLElement;
+  nextYearNav: HTMLElement;
 
   timeContainer?: HTMLDivElement;
   hourElement?: HTMLInputElement;
@@ -145,6 +156,8 @@ export type Instance = Elements &
     _debouncedChange: () => void;
     __hideNextMonthArrow: boolean;
     __hidePrevMonthArrow: boolean;
+    __hideNextYearArrow: boolean;
+    __hidePrevYearArrow: boolean;
     _positionCalendar: (customPositionElement?: HTMLElement) => void;
 
     utils: {

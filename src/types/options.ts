@@ -174,6 +174,9 @@ By default, Flatpickr utilizes native datetime widgets unless certain options (e
   /* How the month selector in the calendar should be shown */
   monthSelectorType: "dropdown" | "static";
 
+  /* How the year selector in the calendar should be shown */
+  yearSelectorType: "dropdown" | "static";
+
   /* HTML for the right arrow icon, used to switch months. */
   nextArrow: string;
 
@@ -258,6 +261,8 @@ Use it along with "enableTime" to create a time picker. */
   /* Sets the number of months to show */
   showMonths?: number;
 
+  showYears?: number;
+
   /* Displays time picker in 24 hour mode without AM/PM selection when enabled.*/
   time_24hr: boolean;
 
@@ -313,6 +318,7 @@ export interface ParsedOptions {
   minuteIncrement: number;
   mode: BaseOptions["mode"];
   monthSelectorType: string;
+  yearSelectorType: string;
   nextArrow: string;
   noCalendar: boolean;
   now: Date;
@@ -335,6 +341,7 @@ export interface ParsedOptions {
   prevArrow: string;
   shorthandCurrentMonth: boolean;
   showMonths: number;
+  showYears: number;
   static: boolean;
   time_24hr: boolean;
   weekNumbers: boolean;
@@ -394,6 +401,7 @@ export const defaults: ParsedOptions = {
   minuteIncrement: 5,
   mode: "single",
   monthSelectorType: "dropdown",
+  yearSelectorType: "dropdown",
   nextArrow:
     "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z' /></svg>",
   noCalendar: false,
@@ -415,8 +423,9 @@ export const defaults: ParsedOptions = {
   positionElement: undefined,
   prevArrow:
     "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z' /></svg>",
-  shorthandCurrentMonth: false,
+  shorthandCurrentMonth: true,
   showMonths: 1,
+  showYears: 1,
   static: false,
   time_24hr: false,
   weekNumbers: false,

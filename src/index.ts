@@ -51,6 +51,7 @@ function FlatpickrInstance(
     } as ParsedOptions,
     l10n: English,
   } as Instance;
+  console.log(self, "55555555555555555");
   self.parseDate = createDateParser({ config: self.config, l10n: self.l10n });
 
   self._handlers = [];
@@ -581,6 +582,7 @@ function FlatpickrInstance(
 
     if (!self.config.noCalendar) {
       fragment.appendChild(buildMonthNav());
+      fragment.appendChild(buildYearNav());
       self.innerContainer = createElement<HTMLDivElement>(
         "div",
         "flatpickr-innerContainer"
@@ -988,13 +990,137 @@ function FlatpickrInstance(
       self.monthsDropdownContainer.appendChild(month);
     }
   }
+  function buildYear() {
+    const container = createElement("div", "flatpickr-year");
+    const yearNavFragment = window.document.createDocumentFragment();
 
+    let yearElement;
+    if (self.config.yearSelectorType != "dropdown") {
+      const yearInput = createNumberInput("cur-year", { tabindex: "-1" });
+
+      yearElement = yearInput.getElementsByTagName(
+        "input"
+      )[0] as HTMLInputElement;
+      yearElement.setAttribute("aria-label", self.l10n.yearAriaLabel);
+
+      if (self.config.minDate) {
+        yearElement.setAttribute(
+          "min",
+          self.config.minDate.getFullYear().toString()
+        );
+      }
+
+      if (self.config.maxDate) {
+        yearElement.setAttribute(
+          "max",
+          self.config.maxDate.getFullYear().toString()
+        );
+
+        yearElement.disabled =
+          !!self.config.minDate &&
+          self.config.minDate.getFullYear() ===
+            self.config.maxDate.getFullYear();
+      }
+    } else {
+      self.yearsDropdownContainer = createElement<HTMLSelectElement>(
+        "select",
+        "flatpickr-monthDropdown-months"
+      );
+
+      self.yearsDropdownContainer.setAttribute(
+        "aria-label",
+        self.l10n.monthAriaLabel
+      );
+
+      bind(self.yearsDropdownContainer, "change", (e: Event) => {
+        const target = getEventTarget(e) as HTMLSelectElement;
+        const selectedYear = parseInt(target.value, 10);
+
+        self.changeMonth(selectedYear - self.currentYear);
+
+        triggerEvent("onMonthChange");
+      });
+
+      // buildMonthSwitch();
+
+      yearElement = self.yearsDropdownContainer;
+    }
+
+    const currentYear = createElement<HTMLDivElement>(
+      "div",
+      "flatpickr-year-month"
+    );
+    currentYear.appendChild(yearElement);
+
+    yearNavFragment.appendChild(currentYear);
+    container.appendChild(yearNavFragment);
+
+    return {
+      container,
+      yearElement,
+    };
+  }
+  function buildYears() {
+    clearNode(self.yearNav);
+    self.yearNav.appendChild(self.prevYearNav);
+    if (self.config.showYears) {
+      self.yearElements = [];
+    }
+    for (let m = self.config.showYears; m--; ) {
+      const year = buildYear();
+      self.yearElements.push(year.yearElement);
+      self.yearNav.appendChild(year.container);
+    }
+    self.yearNav.appendChild(self.nextYearNav);
+  }
+  // year nav label
+  function buildYearNav() {
+    self.yearNav = createElement<HTMLDivElement>("div", "flatpickr-years");
+    self.yearElements = [];
+
+    self.prevYearNav = createElement<HTMLSpanElement>(
+      "span",
+      "flatpickr-prev-year"
+    );
+    self.prevYearNav.innerHTML = self.config.prevArrow;
+
+    self.nextYearNav = createElement("span", "flatpickr-next-year");
+    self.nextYearNav.innerHTML = self.config.nextArrow;
+
+    buildYears();
+
+    Object.defineProperty(self, "_hidePrevYearArrow", {
+      get: () => self.__hidePrevYearArrow,
+      set(bool: boolean) {
+        if (self.__hidePrevYearArrow !== bool) {
+          toggleClass(self.prevYearNav, "flatpickr-disabled", bool);
+          self.__hidePrevYearArrow = bool;
+        }
+      },
+    });
+
+    Object.defineProperty(self, "_hideNextYearArrow", {
+      get: () => self.__hideNextYearArrow,
+      set(bool: boolean) {
+        if (self.__hideNextYearArrow !== bool) {
+          toggleClass(self.nextYearNav, "flatpickr-disabled", bool);
+          self.__hideNextYearArrow = bool;
+        }
+      },
+    });
+
+    self.currentYearElement = self.yearElements[0];
+
+    // updateNavigationCurrentMonth();
+
+    return self.yearNav;
+  }
   function buildMonth() {
     const container = createElement("div", "flatpickr-month");
     const monthNavFragment = window.document.createDocumentFragment();
 
     let monthElement;
-
+    // create month
     if (
       self.config.showMonths > 1 ||
       self.config.monthSelectorType === "static"
@@ -1025,44 +1151,44 @@ function FlatpickrInstance(
       monthElement = self.monthsDropdownContainer;
     }
 
-    const yearInput = createNumberInput("cur-year", { tabindex: "-1" });
+    // const yearInput = createNumberInput("cur-year", { tabindex: "-1" });
 
-    const yearElement = yearInput.getElementsByTagName(
-      "input"
-    )[0] as HTMLInputElement;
-    yearElement.setAttribute("aria-label", self.l10n.yearAriaLabel);
+    // const yearElement = yearInput.getElementsByTagName(
+    //   "input"
+    // )[0] as HTMLInputElement;
+    // yearElement.setAttribute("aria-label", self.l10n.yearAriaLabel);
 
-    if (self.config.minDate) {
-      yearElement.setAttribute(
-        "min",
-        self.config.minDate.getFullYear().toString()
-      );
-    }
+    // if (self.config.minDate) {
+    //   yearElement.setAttribute(
+    //     "min",
+    //     self.config.minDate.getFullYear().toString()
+    //   );
+    // }
 
-    if (self.config.maxDate) {
-      yearElement.setAttribute(
-        "max",
-        self.config.maxDate.getFullYear().toString()
-      );
+    // if (self.config.maxDate) {
+    //   yearElement.setAttribute(
+    //     "max",
+    //     self.config.maxDate.getFullYear().toString()
+    //   );
 
-      yearElement.disabled =
-        !!self.config.minDate &&
-        self.config.minDate.getFullYear() === self.config.maxDate.getFullYear();
-    }
+    //   yearElement.disabled =
+    //     !!self.config.minDate &&
+    //     self.config.minDate.getFullYear() === self.config.maxDate.getFullYear();
+    // }
 
     const currentMonth = createElement<HTMLDivElement>(
       "div",
       "flatpickr-current-month"
     );
     currentMonth.appendChild(monthElement);
-    currentMonth.appendChild(yearInput);
+    // currentMonth.appendChild(yearInput);
 
     monthNavFragment.appendChild(currentMonth);
     container.appendChild(monthNavFragment);
 
     return {
       container,
-      yearElement,
+      // yearElement,
       monthElement,
     };
   }
@@ -1070,25 +1196,25 @@ function FlatpickrInstance(
   function buildMonths() {
     clearNode(self.monthNav);
     self.monthNav.appendChild(self.prevMonthNav);
-
+    console.log(self.monthNav, "66666");
     if (self.config.showMonths) {
-      self.yearElements = [];
+      // self.yearElements = [];
       self.monthElements = [];
     }
-
+    // prevnav
     for (let m = self.config.showMonths; m--; ) {
       const month = buildMonth();
-      self.yearElements.push(month.yearElement);
+      // self.yearElements.push(month.yearElement);
       self.monthElements.push(month.monthElement);
       self.monthNav.appendChild(month.container);
     }
 
     self.monthNav.appendChild(self.nextMonthNav);
   }
-
+  // month nav label
   function buildMonthNav() {
     self.monthNav = createElement<HTMLDivElement>("div", "flatpickr-months");
-    self.yearElements = [];
+    // self.yearElements = [];
     self.monthElements = [];
 
     self.prevMonthNav = createElement<HTMLSpanElement>(
@@ -1122,7 +1248,7 @@ function FlatpickrInstance(
       },
     });
 
-    self.currentYearElement = self.yearElements[0];
+    // self.currentYearElement = self.yearElements[0];
 
     updateNavigationCurrentMonth();
 
@@ -1268,6 +1394,7 @@ function FlatpickrInstance(
     }
 
     const firstDayOfWeek = self.l10n.firstDayOfWeek;
+    // fix shorter weekdays
     let weekdays = [...self.l10n.weekdays.shorthand];
 
     if (firstDayOfWeek > 0 && firstDayOfWeek < weekdays.length) {
@@ -1430,15 +1557,20 @@ function FlatpickrInstance(
       "innerContainer",
       "rContainer",
       "monthNav",
+      "yearNav",
       "todayDateElem",
       "calendarContainer",
       "weekdayContainer",
       "prevMonthNav",
       "nextMonthNav",
+      "prevYearNav",
+      "nextYearNav",
       "monthsDropdownContainer",
+      "yearsDropdownContainer",
       "currentMonthElement",
       "currentYearElement",
       "navigationCurrentMonth",
+      "navigationCurrentYear",
       "selectedDateElem",
       "config",
     ] as (keyof Instance)[]).forEach((k) => {
@@ -1956,10 +2088,10 @@ function FlatpickrInstance(
         `_${type}Date` as "_minDate" | "_maxDate"
       ] = self.parseDate(date, self.config.dateFormat));
 
-      const inverseDateObj =
-        self.config[
-          `_${type === "min" ? "max" : "min"}Date` as "_minDate" | "_maxDate"
-        ];
+      // const inverseDateObj =
+      //   self.config[
+      //     `_${type === "min" ? "max" : "min"}Date` as "_minDate" | "_maxDate"
+      //   ];
 
       if (dateObj !== undefined) {
         self[type === "min" ? "minDateHasTime" : "maxDateHasTime"] =
@@ -1978,14 +2110,14 @@ function FlatpickrInstance(
       if (self.daysContainer) {
         redraw();
 
-        if (dateObj !== undefined)
-          self.currentYearElement[type] = dateObj.getFullYear().toString();
-        else self.currentYearElement.removeAttribute(type);
+        // if (dateObj !== undefined)
+        //   self.currentYearElement[type] = dateObj.getFullYear().toString();
+        // else self.currentYearElement.removeAttribute(type);
 
-        self.currentYearElement.disabled =
-          !!inverseDateObj &&
-          dateObj !== undefined &&
-          inverseDateObj.getFullYear() === dateObj.getFullYear();
+        // self.currentYearElement.disabled =
+        //   !!inverseDateObj &&
+        //   dateObj !== undefined &&
+        //   inverseDateObj.getFullYear() === dateObj.getFullYear();
       }
     };
   }
@@ -2776,26 +2908,26 @@ function FlatpickrInstance(
   function updateNavigationCurrentMonth() {
     if (self.config.noCalendar || self.isMobile || !self.monthNav) return;
 
-    self.yearElements.forEach((yearElement, i) => {
-      const d = new Date(self.currentYear, self.currentMonth, 1);
-      d.setMonth(self.currentMonth + i);
+    // self.yearElements.forEach((yearElement, i) => {
+    //   const d = new Date(self.currentYear, self.currentMonth, 1);
+    //   d.setMonth(self.currentMonth + i);
 
-      if (
-        self.config.showMonths > 1 ||
-        self.config.monthSelectorType === "static"
-      ) {
-        self.monthElements[i].textContent =
-          monthToStr(
-            d.getMonth(),
-            self.config.shorthandCurrentMonth,
-            self.l10n
-          ) + " ";
-      } else {
-        self.monthsDropdownContainer.value = d.getMonth().toString();
-      }
+    //   if (
+    //     self.config.showMonths > 1 ||
+    //     self.config.monthSelectorType === "static"
+    //   ) {
+    //     self.monthElements[i].textContent =
+    //       monthToStr(
+    //         d.getMonth(),
+    //         self.config.shorthandCurrentMonth,
+    //         self.l10n
+    //       ) + " ";
+    //   } else {
+    //     self.monthsDropdownContainer.value = d.getMonth().toString();
+    //   }
 
-      yearElement.value = d.getFullYear().toString();
-    });
+    //   // yearElement.value = d.getFullYear().toString();
+    // });
 
     self._hidePrevMonthArrow =
       self.config.minDate !== undefined &&
